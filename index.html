@@ -1,68 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Couple Gifts Walaa Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Firebase CDN -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <style>
-    body { font-family: Arial; text-align: center; margin-top: 100px; }
-    input { padding: 10px; margin: 10px; width: 250px; }
-    button { padding: 10px 20px; cursor: pointer; }
-  </style>
+  <title>Couple Gifts Walaa</title>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC1DXO4MMYvLqdMl73MeaxVT-k6c0-H7b0",
+      authDomain: "couple-gifts-walaa.firebaseapp.com",
+      projectId: "couple-gifts-walaa",
+      storageBucket: "couple-gifts-walaa.firebasestorage.app",
+      messagingSenderId: "89761988573",
+      appId: "1:89761988573:web:17feb8eb14a14b13f84034",
+      measurementId: "G-XX762XYE7P"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.addProduct = async function () {
+      const name = document.getElementById("name").value;
+      const price = document.getElementById("price").value;
+      const image = document.getElementById("image").value;
+
+      await addDoc(collection(db, "products"), {
+        name: name,
+        price: price,
+        image: image
+      });
+
+      alert("Product Added!");
+      loadProducts();
+    }
+
+    async function loadProducts() {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      const container = document.getElementById("products");
+      container.innerHTML = "";
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        container.innerHTML += `
+          <div style="border:1px solid black;padding:10px;margin:10px;">
+            <h3>${data.name}</h3>
+            <img src="${data.image}" width="150"/>
+            <p>Price: ₹${data.price}</p>
+          </div>
+        `;
+      });
+    }
+
+    window.onload = loadProducts;
+  </script>
 </head>
+
 <body>
-<h2>Login with Phone OTP</h2>
-<input type="text" id="phone" placeholder="+91XXXXXXXXXX">
-<br>
-<div id="recaptcha-container"></div>
-<button onclick="sendOTP()">Send OTP</button>
-<br><br>
-<input type="text" id="otp" placeholder="Enter OTP">
-<br>
-<button onclick="verifyOTP()">Verify OTP</button>
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyC1DXO4MMYvLqdMl73MeaxVT-k6c0-H7b0",
-  authDomain: "couple-gifts-walaa.firebaseapp.com",
-  projectId: "couple-gifts-walaa",
-  storageBucket: "couple-gifts-walaa.firebasestorage.app",
-  messagingSenderId: "89761988573",
-  appId: "1:89761988573:web:8320fbaf33085cbff84034"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-  size: 'normal'
-});
-function sendOTP() {
-  const phoneNumber = document.getElementById("phone").value;
-  const appVerifier = window.recaptchaVerifier;
-  auth.signInWithPhoneNumber(phoneNumber, appVerifier)
-    .then(function (confirmationResult) {
-      window.confirmationResult = confirmationResult;
-      alert("OTP Sent ✅");
-    }).catch(function (error) {
-      alert(error.message);
-    });
-}
-function verifyOTP() {
-  const code = document.getElementById("otp").value;
-  confirmationResult.confirm(code).then(function (result) {
-    const user = result.user;
-    db.collection("users").doc(user.uid).set({
-      phone: user.phoneNumber,
-      uid: user.uid,
-      loginTime: new Date()
-    });
-    alert("Login Successful 🎉");
-  }).catch(function (error) {
-    alert("Wrong OTP ❌");
-  });
-}
-</script>
+
+  <h1>Couple Gifts Walaa</h1>
+
+  <h2>Add Product</h2>
+  <input type="text" id="name" placeholder="Product Name"><br><br>
+  <input type="text" id="price" placeholder="Price"><br><br>
+  <input type="text" id="image" placeholder="Image URL"><br><br>
+  <button onclick="addProduct()">Add Product</button>
+
+  <h2>Products</h2>
+  <div id="products"></div>
+
 </body>
 </html>
