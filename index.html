@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Couple Gifts Walaa Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 100px; }
+    input { padding: 10px; margin: 10px; width: 250px; }
+    button { padding: 10px 20px; cursor: pointer; }
+  </style>
+</head>
+<body>
+<h2>Login with Phone OTP</h2>
+<input type="text" id="phone" placeholder="+91XXXXXXXXXX">
+<br>
+<div id="recaptcha-container"></div>
+<button onclick="sendOTP()">Send OTP</button>
+<br><br>
+<input type="text" id="otp" placeholder="Enter OTP">
+<br>
+<button onclick="verifyOTP()">Verify OTP</button>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC1DXO4MMYvLqdMl73MeaxVT-k6c0-H7b0",
+  authDomain: "couple-gifts-walaa.firebaseapp.com",
+  projectId: "couple-gifts-walaa",
+  storageBucket: "couple-gifts-walaa.firebasestorage.app",
+  messagingSenderId: "89761988573",
+  appId: "1:89761988573:web:8320fbaf33085cbff84034"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+  size: 'normal'
+});
+function sendOTP() {
+  const phoneNumber = document.getElementById("phone").value;
+  const appVerifier = window.recaptchaVerifier;
+  auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+    .then(function (confirmationResult) {
+      window.confirmationResult = confirmationResult;
+      alert("OTP Sent ✅");
+    }).catch(function (error) {
+      alert(error.message);
+    });
+}
+function verifyOTP() {
+  const code = document.getElementById("otp").value;
+  confirmationResult.confirm(code).then(function (result) {
+    const user = result.user;
+    db.collection("users").doc(user.uid).set({
+      phone: user.phoneNumber,
+      uid: user.uid,
+      loginTime: new Date()
+    });
+    alert("Login Successful 🎉");
+  }).catch(function (error) {
+    alert("Wrong OTP ❌");
+  });
+}
+</script>
+</body>
+</html>
